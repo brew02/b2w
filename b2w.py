@@ -1,5 +1,6 @@
 import sys
 import os
+import wave
 
 def b2w_error(message, usage):
     print(message)
@@ -12,13 +13,15 @@ def b2w(file_path):
     if os.path.isfile(file_path) == False:
         return False
 
+    audio_path = file_path + ".wav"
+
     # An audio file already exists
-    if os.path.exists(file_path + ".wav"):
+    if os.path.exists(audio_path):
         return False
 
     with open(file_path, "br+") as file:
         content = file.read()
-        with open(file_path + ".wav", "bw+") as audio_file:
+        with open(audio_path, "bw+") as audio_file:
             # Reference: https://en.wikipedia.org/wiki/WAV#WAV_file_header 
             WAV_HEADER_SIZE = 44
 
@@ -51,10 +54,14 @@ def b2w(file_path):
 
             audio_file.write("data".encode("utf-8"))
             audio_file.write(binary_size.to_bytes(4, byteorder="little"))
-            audio_file.write(content)
             audio_file.truncate()
 
             print(f"Converted {file_path} to .wav file")
+        
+        with wave.open(audio_path, "wb") as wav_file:
+            wav_file.writeframes(content)
+
+            print(f"Wrote .wav file content")
 
     return True
 
