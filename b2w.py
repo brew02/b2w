@@ -4,7 +4,7 @@ import os
 def b2w_error(message, usage):
     print(message)
     if usage == True:
-        print("Usage: python3 b2w.py [path]")
+        print("Usage: python3 b2w.py [file_path | directory_path]")
     sys.exit(-1)
 
 # Binary to .wav
