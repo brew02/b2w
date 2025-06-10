@@ -49,8 +49,6 @@ def b2w(file_path):
 
     return True
 
-
-
 argv_len = len(sys.argv)
 
 # We require only two arguments (the first being the name of the script, b2w.py)
