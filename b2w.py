@@ -73,3 +73,5 @@ if os.path.isdir(path):
         b2w(file_path)
 else:
     b2w(path)
+
+print("Converted to .wav")

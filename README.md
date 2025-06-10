@@ -16,10 +16,10 @@ Ensure that librosa, numpy, and matplotlib are installed using the following com
 
 Run the following command, where the `file_path`/`directory_path` can be a relative or absolute path to the binary files that are to be converted to .wav files:
 
-`python3 b2w.py [file_path | directory_path]`
+`python b2w.py [file_path | directory_path]`
 
 ### w2s.py
 
 Run the following command, where the `file_path`/`directory_path` can be a relative or absolute path to the .wav files that are to be converted to spectrograms:
 
-`python3 w2s.py [file_path | directory_path]`
+`python w2s.py [file_path | directory_path]`

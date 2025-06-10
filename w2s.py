@@ -33,12 +33,12 @@ def w2s(audio_path):
         return False
 
     y, sr = librosa.load(audio_path)
-    spec = librosa.feature.melspectrogram(y=y, sr=sr)
+    spec = numpy.abs(librosa.stft(y=y))
     spec_db = librosa.power_to_db(spec, ref=numpy.median)
     plt.ioff()
     plt.figure(figsize=(10, 4))
-    plt.ylim((0, 10000))
-    librosa.display.specshow(spec_db, sr=sr, x_axis="time", y_axis="mel")
+    plt.ylim((0, 11000))
+    librosa.display.specshow(spec_db, sr=sr, x_axis="time", y_axis="hz")
     plt.colorbar(format="%+2.0f dB")
     plt.tight_layout()
 
@@ -73,3 +73,4 @@ if os.path.isdir(path):
 else:
     w2s(path)
 
+print("Created spectrograms")
