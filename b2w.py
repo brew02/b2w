@@ -1,6 +1,7 @@
 import sys
 import os
 import wave
+import struct
 
 def b2w_error(message, usage):
     print(message)
@@ -13,53 +14,36 @@ def b2w(file_path):
     if os.path.isfile(file_path) == False:
         return False
 
+    # An audio file already exists
+    if file_path.endswith(".wav"):
+        print(F"{file_path} already exists")
+        return False
+
     audio_path = file_path + ".wav"
 
-    # An audio file already exists
     if os.path.exists(audio_path):
+        print(f"{audio_path} already exists")
         return False
 
     with open(file_path, "br+") as file:
         content = file.read()
-        with open(audio_path, "bw+") as audio_file:
-            # Reference: https://en.wikipedia.org/wiki/WAV#WAV_file_header 
-            WAV_HEADER_SIZE = 44
 
-            audio_file.write("RIFF".encode("utf-8"))
-            binary_size = os.fstat(file.fileno()).st_size
-            wav_size = binary_size + WAV_HEADER_SIZE - 8
-            audio_file.write(wav_size.to_bytes(4, byteorder="little"))
-            audio_file.write("WAVE".encode("utf-8"))
+        channels = 1
+        bits_per_sample = 16
+        byte_per_bloc = channels * bits_per_sample // 8
+        frequency = 44100
 
-            audio_file.write("fmt ".encode("utf-8"))
-            # The size of the fmt block - 8
-            bloc_size = 24 - 8
-            audio_file.write(bloc_size.to_bytes(4, byteorder="little"))
-            # PCM_INTEGER
-            audio_format = 1
-            audio_file.write(audio_format.to_bytes(2, byteorder="little"))
+        content_len = len(content)
+        if (content_len % 2) != 0:
+            content = content + b"\x00"
+            content_len = content_len + 1
 
-            channels = 1
-            audio_file.write(channels.to_bytes(2, byteorder="little"))
-
-            frequency = 44100
-            audio_file.write(frequency.to_bytes(4, byteorder="little"))
-
-            bits_per_sample = 16
-            byte_per_bloc = channels * bits_per_sample / 8
-            byte_per_sec = frequency * byte_per_bloc
-            audio_file.write(byte_per_sec.to_bytes(4, byteorder="little"))
-            audio_file.write(byte_per_bloc.to_bytes(2, byteorder="little"))
-            audio_file.write(bits_per_sample.to_bytes(2, byteorder="little"))
-
-            audio_file.write("data".encode("utf-8"))
-            audio_file.write(binary_size.to_bytes(4, byteorder="little"))
-            audio_file.truncate()
-
-            print(f"Converted {file_path} to .wav file")
+        # Unpack the binary as shorts (2 bytes each)
+        audio_data = struct.unpack(f"{content_len // 2}h", content[:content_len])
         
         with wave.open(audio_path, "wb") as wav_file:
-            wav_file.writeframes(content)
+            wav_file.setparams((channels, bits_per_sample // 8, frequency, 0, "NONE", "not compressed"))
+            wav_file.writeframes(struct.pack(f"{len(audio_data)}h", *audio_data))
 
             print(f"Wrote .wav file content")
 
@@ -73,9 +57,16 @@ argv_len = len(sys.argv)
 if argv_len != 2:
     b2w_error(f"Invalid number of arguments: {argv_len}", True)
 
+# Support absolute and relative paths
 path = sys.argv[1]
 if os.path.exists == False:
-    b2w_error(f"Invalid path: {path}", True)
+    path = os.getcwd() + path
+    if os.path.exists == False:
+        b2w_error(f"Invalid path: {path}", True)
+    else:
+        print("Using relative path")
+else:
+    print("Using absolute path")
 
 if os.path.isdir(path):
     # Loop through the directory if that was specified
