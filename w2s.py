@@ -34,7 +34,7 @@ def w2s(audio_path):
 
     y, sr = librosa.load(audio_path)
     spec = librosa.feature.melspectrogram(y=y, sr=sr)
-    spec_db = librosa.power_to_db(spec, ref=numpy.max)
+    spec_db = librosa.power_to_db(spec, ref=numpy.median)
     plt.ioff()
     plt.figure(figsize=(10, 4))
     plt.ylim((0, 10000))
